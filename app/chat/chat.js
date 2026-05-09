@@ -125,7 +125,7 @@ export default function ChatPage() {
         id: chat.id,
         itemId: chat.item_id,
         itemTitle: itemMap[chat.item_id]?.title || "Item",
-        otherUserId: otherUser?.id,
+        otherUserId: otherUser?.id || (isFinder ? chat.claimer_id : chat.finder_id),
         otherUser: otherUser || { full_name: "Unknown", avatar_url: null },
         lastMessage: latestMsg
           ? (latestMsg.sender_id === user.id ? `You: ${latestMsg.content}` : latestMsg.content)
@@ -216,11 +216,6 @@ export default function ChatPage() {
     setNewMessage("");
     profanityStrikeRef.current = 0; // Reset strike count on clean message
 
-    // BUG FIX: Supabase Realtime postgres_changes does NOT deliver INSERT events
-    // back to the client that performed the insert. This means the sender never
-    // saw their own message in real-time — they had to reload. Fix: capture the
-    // inserted row from the DB response and append it immediately (optimistic UI).
-    // The realtime channel still handles the OTHER user's incoming messages.
     const { data: inserted, error } = await supabase
       .from("messages")
       .insert({
@@ -236,6 +231,7 @@ export default function ChatPage() {
 
     if (error) {
       console.error("Supabase Insert Error:", error.message, error.details);
+      alert("Failed to send message: " + error.message);
       return;
     }
 
