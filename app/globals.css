@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --primary-orange: #FF6B35;
+  --secondary-orange: #FF8C42;
+  --dark-black: #0a0a0a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Gradient utilities */
+.gradient-orange-black {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 50%, #0a0a0a 100%);
+}
+
+.gradient-black-orange {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #FF6B35 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-orange {
+  box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+}
+
+/* Custom Animation for Marquee Title */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  10% { transform: translateX(0); } /* Pause at start */
+  45% { transform: translateX(calc(-100% + 100px)); } /* Scroll to end (approx 100px is the width of the container, we just use a trick to scroll far enough) */
+  55% { transform: translateX(calc(-100% + 100px)); } /* Pause at end */
+  90% { transform: translateX(0); } /* Scroll back */
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee-scroll {
+  display: inline-block;
+  animation: marquee-scroll 6s linear infinite;
+  /* Add hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ─────────────────────────── CUSTOM SCROLLBAR ─────────────────────────── */
+/* For Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 4px solid #0a0a0a; /* Creates the padding/inset effect */
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316; /* orange-500 */
+}
+
+/* Hide horizontal scrollbar but keep functionality */
+::-webkit-scrollbar:horizontal {
+  height: 0;
+  width: 0;
+  display: none;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) #0a0a0a;
+}
