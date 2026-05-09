@@ -56,6 +56,7 @@ export default function ChatPage() {
         .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => fetchConversations())
         .on("postgres_changes", { event: "*", schema: "public", table: "chats" }, () => fetchConversations())
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "items" }, () => fetchConversations())
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles" }, () => fetchConversations())
         .subscribe();
       return () => {
         supabase.removeChannel(listChannel);
@@ -102,13 +103,18 @@ export default function ChatPage() {
     const itemIds = [...new Set(chatsData.map(c => c.item_id).filter(Boolean))];
     const profileIds = [...new Set(chatsData.flatMap(c => [c.finder_id, c.claimer_id]).filter(Boolean))];
 
-    const [{ data: itemsData }, { data: profilesData }] = await Promise.all([
-      supabase.from('items').select('id, title, status').in('id', itemIds),
-      supabase.from('profiles').select('id, full_name, avatar_url, is_banned').in('id', profileIds)
-    ]);
+    let itemsData = [], profilesData = [];
+    if (itemIds.length > 0) {
+      const { data } = await supabase.from('items').select('id, title, status').in('id', itemIds);
+      itemsData = data || [];
+    }
+    if (profileIds.length > 0) {
+      const { data } = await supabase.from('profiles').select('id, full_name, avatar_url, is_banned').in('id', profileIds);
+      profilesData = data || [];
+    }
 
-    const itemMap = itemsData?.reduce((acc, i) => ({ ...acc, [i.id]: i }), {}) || {};
-    const profileMap = profilesData?.reduce((acc, p) => ({ ...acc, [p.id]: p }), {}) || {};
+    const itemMap = itemsData.reduce((acc, i) => ({ ...acc, [i.id]: i }), {});
+    const profileMap = profilesData.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
 
     const mapped = chatsData.map(chat => {
       const isFinder = chat.finder_id === user.id;
